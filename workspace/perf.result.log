@@ -1,21 +1,4 @@
-yolov5s,YoloV5,FP32,6.317838
-yolov6n,YoloV5,FP16,3.625780
-yolov6n,YoloV5,FP16,1.285288
-yolov6n,YoloV5,FP16,1.362765
-yolov8n,YoloV5,FP32,3.555186
-yolov6n,YoloV5,FP16,1.303225
-yolov8n,YoloV5,FP16,1.831362
-yolox_s,YoloX,FP16,2.728418
-yolox_s,YoloX,FP16,2.737315
-yolov8n,YoloV5,FP16,1.831533
-yolov8n,YoloV5,FP16,1.827017
-yolov8n,YoloV5,FP16,2.640414
-yolov8n,YoloV5,FP16,2.218934
-yolov8n,YoloV5,FP16,2.308600
-yolov8n,YoloV5,FP16,2.685600
-yolov8n,YoloV5,FP16,2.673051
-yolov8n,YoloV5,FP16,2.055804
-yolov6n,YoloV5,FP16,1.590627
-yolov6n,YoloV5,FP16,1.475411
-yolov6n,YoloV5,INT8,1.255294
-yolov6n,YoloV5,INT8,0.988810
+jetson xavier NX - jetpack5.1
+yolov6n,YoloV5,FP16,6.084898
+yolov6n,YoloV5,FP16,5.950640
+yolov6n,YoloV5,FP16,7.381704

@@ -1,14 +1,15 @@
 #include "yolo_gpuptr.hpp"
+
 #include <atomic>
-#include <mutex>
-#include <queue>
-#include <condition_variable>
-#include <infer/trt_infer.hpp>
+#include <common/cuda_tools.hpp>
 #include <common/ilogger.hpp>
 #include <common/infer_controller.hpp>
-#include <common/preprocess_kernel.cuh>
 #include <common/monopoly_allocator.hpp>
-#include <common/cuda_tools.hpp>
+#include <common/preprocess_kernel.cuh>
+#include <condition_variable>
+#include <infer/trt_infer.hpp>
+#include <mutex>
+#include <queue>
 
 namespace YoloGPUPtr {
 using namespace cv;
@@ -317,7 +318,10 @@ public:
                                                  image_data_size, image.stream));
             checkCudaRuntime(cudaStreamSynchronize(image.stream));
         } else {
-            tensor->set_stream(image.stream, false);
+            if (image.stream == nullptr)
+                tensor->set_stream(stream_, false);
+            else
+                tensor->set_stream(image.stream, false);
         }
 
         preprocess_stream = tensor->get_stream();

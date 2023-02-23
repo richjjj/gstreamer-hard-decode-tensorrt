@@ -43,10 +43,10 @@ nvcc              := $(cuda_home)/bin/nvcc -ccbin=$(cc)
 include_cuda      := $(cuda_home)/include
 include_tensorRT  := 
 include_protobuf  := $(cpp_pkg)/protobuf/include
-include_cuvid     := $(cpp_pkg)/cuvid/include
+include_jetsonutils     := $(cpp_pkg)/jetson-utils/include
 include_opencv    := /usr/include/opencv4
 
-lib_all        := $(cuda_home)/lib64 $(cpp_pkg)/protobuf/lib $(syslib) /usr/lib/aarch64-linux-gnu
+lib_all        := $(cuda_home)/lib64 $(cpp_pkg)/protobuf/lib $(syslib) /usr/lib/aarch64-linux-gnu $(cpp_pkg)/jetson-utils/lib
 
 # 定义头文件路径，请注意斜杠后边不能有空格
 # 只需要写路径，不需要写-I
@@ -54,6 +54,7 @@ include_paths := src    \
     $(include_cuda)     \
 	$(include_tensorRT) \
 	$(include_protobuf) \
+	$(include_jetsonutils) \
 	$(include_opencv)   \
 	src/tensorRT        \
 	src/tensorRT/common \
@@ -118,6 +119,9 @@ multi : $(example)
 pipeline : $(example)
 	@cd $(workdir) && ./$(example) pipeline
 
+gstdecode : $(example)
+	@cd $(workdir) && ./$(example) gstdecode
+
 $(workdir)/$(name) : $(cpp_objs) $(cu_objs)
 	@echo Link $@
 	@mkdir -p $(dir $@)
@@ -126,7 +130,7 @@ $(workdir)/$(name) : $(cpp_objs) $(cu_objs)
 $(workdir)/$(example) : $(cpp_objs_example)
 	@echo Link $@
 	@mkdir -p $(dir $@)
-	@$(cc) $^ -o $@ $(link_flags) -L$(workdir) -l$(short_name)
+	@$(cc) $^ -o $@ $(link_flags) -L$(workdir) -l$(short_name) -ljetson-utils
 
 $(objdir)/%.cpp.o : $(srcdir)/%.cpp
 	@echo Compile CXX $<

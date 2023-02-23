@@ -20,6 +20,7 @@ int app_bus();
 int app_test();
 int app_yolopose();
 int app_plate();
+int app_gstdecode();
 int main(int argc, char **argv) {
     const char *method = "yolo";
     if (argc > 1) {
@@ -36,6 +37,10 @@ int main(int argc, char **argv) {
         app_bus();
     } else if (strcmp(method, "test") == 0) {
         app_test();
+    } else if (strcmp(method, "yolopose") == 0) {
+        app_yolopose();
+    } else if (strcmp(method, "gstdecode") == 0) {
+        app_gstdecode();
     } else {
         app_yolo();
     }
