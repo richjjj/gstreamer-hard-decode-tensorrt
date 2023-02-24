@@ -2,3 +2,4 @@ jetson xavier NX - jetpack5.1
 yolov6n,YoloV5,FP16,6.084898
 yolov6n,YoloV5,FP16,5.950640
 yolov6n,YoloV5,FP16,7.381704
+yolov6s_qa,YoloV5,INT8,7.210581

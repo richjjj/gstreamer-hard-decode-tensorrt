@@ -138,16 +138,16 @@ static void test(Yolo::Type type, TRT::Mode mode, const string& model) {
     if (not requires(name))
         return;
 
-    string onnx_file    = iLogger::format("%s.onnx", name);
-    int test_batch_size = 32;
-    string model_file   = iLogger::format("%s.%s.B%d.trtmodel", name, mode_name, test_batch_size);
-
+    string onnx_file                = iLogger::format("%s.onnx", name);
+    int test_batch_size             = 16;
+    string model_file               = iLogger::format("%s.%s.B%d.trtmodel", name, mode_name, test_batch_size);
+    string nt8EntropyCalibratorFile = iLogger::format("%s.%s.B%d.cali", name, mode_name, test_batch_size);
     if (not iLogger::exists(model_file)) {
         TRT::compile(mode,             // FP32、FP16、INT8
                      test_batch_size,  // max batch size
                      onnx_file,        // source
                      model_file,       // save to
-                     {}, int8process, "inference");
+                     {}, int8process, "coco_calibration_sample_200", nt8EntropyCalibratorFile);
     }
 
     inference_and_performance(deviceid, model_file, mode, type, name);
@@ -197,7 +197,7 @@ void multi_instances_test() {
 int app_yolo() {
     // multi_instances_test();
     // test(Yolo::Type::V7, TRT::Mode::FP32, "yolov7");
-    test(Yolo::Type::V5, TRT::Mode::FP16, "yolov6n");
+    test(Yolo::Type::V5, TRT::Mode::INT8, "yolov6s_qa");
     // test(Yolo::Type::V5, TRT::Mode::FP32, "yolov5s");
     // test(Yolo::Type::V3, TRT::Mode::FP32, "yolov3");
 

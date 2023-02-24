@@ -40,7 +40,7 @@ static shared_ptr<YoloGPUPtr::Infer> get_yolo(YoloGPUPtr::Type type, TRT::Mode m
          mode_name, name);
 
     string onnx_file    = iLogger::format("%s.onnx", name);
-    int test_batch_size = 8;
+    int test_batch_size = 16;
     string model_file   = iLogger::format("%s.%s.B%d.trtmodel", name, mode_name, test_batch_size);
 
     if (!iLogger::exists(model_file)) {
@@ -68,24 +68,16 @@ static void sig_handler(int signo) {
         signal_recieved = true;
     }
 }
-int app_gstdecode() {
-    if (iLogger::exists("hard"))
-        iLogger::rmtree("hard");
-    iLogger::mkdir("hard");
-    auto yolo = get_yolo(YoloGPUPtr::Type::V5, TRT::Mode::FP16, "yolov6n", 0);
-    // warm up
-    for (int i = 0; i < 100; ++i)
-        yolo->commit(cv::Mat(640, 640, CV_8UC3)).get();
 
+static int test_gstdecode(std::shared_ptr<YoloGPUPtr::Infer> infer = nullptr) {
+    auto thread_id = std::this_thread::get_id();
     int frame_count{0};
     // create input stream
     videoOptions option;
     option.zeroCopy = false;
     option.codec    = videoOptions::Codec::CODEC_H264;
-    // option.resource = "rtsp://admin:dahua123456@39.184.150.8:10554/cam/realmonitor?channel=2&subtype=0";
-    // option.codec    = videoOptions::Codec::CODEC_H264;
     option.resource = "rtsp://admin:xmrbi123@192.168.175.232:554/Streaming/Channels/101";
-    option.Print();
+    // option.resource = "rtsp://admin:dahua123456@39.184.150.8:10554/cam/realmonitor?channel=2&subtype=0";
     videoSource* input_stream = videoSource::Create(option);
     if (!input_stream) {
         INFO("failed to create input_stream");
@@ -93,9 +85,9 @@ int app_gstdecode() {
     }
 
     // process loop
+    uchar3* image = nullptr;
     while (!signal_recieved) {
-        uchar3* image = nullptr;
-        // void* image;
+        auto t0 = iLogger::timestamp_now_float();
         if (!input_stream->Capture(&image, 1000)) {
             // check for EOS
             if (!input_stream->IsStreaming())
@@ -107,40 +99,30 @@ int app_gstdecode() {
         int height = input_stream->GetHeight();
 
         // infer
-        auto t1 = iLogger::timestamp_now_float();
-        YoloGPUPtr::Image infer_image((uint8_t*)image, width, height, 0, nullptr, YoloGPUPtr::ImageType::GPUBGR);
-        auto result = yolo->commit(infer_image).get();
-        auto t2     = iLogger::timestamp_now_float();
-        INFO("infer cost %.2fms.", float(t2 - t1));
-
-        // draw
-        // cv::Mat cvimage(height, width, CV_8UC3);
-        // cudaMemcpy(cvimage.data, image, width * height * sizeof(uchar3), cudaMemcpyDeviceToHost);
-        // for (auto& obj : result) {
-        //     auto name      = cocolabels[obj.class_label];
-        //     auto caption   = iLogger::format("%s %.2f", name, obj.confidence);
-        //     int font_width = cv::getTextSize(caption, 0, 1, 2, nullptr).width + 10;
-        //     cv::rectangle(cvimage, cv::Point(obj.left, obj.top), cv::Point(obj.right, obj.bottom),
-        //                   cv::Scalar(0, 0, 255), 5);
-        //     cv::rectangle(cvimage, cv::Point(obj.left - 3, obj.top - 33), cv::Point(obj.left + font_width, obj.top),
-        //                   cv::Scalar(255, 0, 0), -1);
-        //     cv::putText(cvimage, caption, cv::Point(obj.left, obj.top - 5), 0, 1, cv::Scalar::all(0), 2, 16);
-        // }
-        // ++frame_count;
-        // auto img_path = iLogger::format("hard/%d.jpg", frame_count);
-        // cv::imwrite(img_path, cvimage);
-        // cuda draw
-        // for (auto& obj : result) {
-        //     CUDA(cudaDrawRect(image, width, height, obj.left, obj.top, obj.right, obj.bottom,
-        //                       make_float4(255, 0, 0, 200)));  // color:x y z w ;w>0 表示填充
-        // }
-        // ++frame_count;
-        // auto img_path = iLogger::format("hard/%d.jpg", frame_count);
-
-        // saveImage(img_path.c_str(), image, width, height);
+        if (infer != nullptr) {
+            auto t1 = iLogger::timestamp_now_float();
+            YoloGPUPtr::Image infer_image((uint8_t*)image, width, height, 0, nullptr, YoloGPUPtr::ImageType::GPUBGR);
+            auto result = infer->commit(infer_image).get();
+            auto t2     = iLogger::timestamp_now_float();
+            INFO("[%d] Capture cost: %.2fms; infer cost: %.2fms.", thread_id, float(t1 - t0), float(t2 - t1));
+        }
     }
 
     // 释放
     SAFE_DELETE(input_stream);
-    return 0;
+}
+int app_gstdecode() {
+    if (iLogger::exists("hard"))
+        iLogger::rmtree("hard");
+    iLogger::mkdir("hard");
+    auto yolo = get_yolo(YoloGPUPtr::Type::V5, TRT::Mode::INT8, "yolov6s_qa", 0);
+    // warm up
+    for (int i = 0; i < 100; ++i)
+        yolo->commit(cv::Mat(640, 640, CV_8UC3)).get();
+
+    int num_views = 6;
+#pragma omp parallel for num_threads(num_views)
+    for (int i = 0; i < num_views; ++i) {
+        test_gstdecode(yolo);
+    }
 }
