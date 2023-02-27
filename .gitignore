@@ -18,4 +18,4 @@ workspace/*.jpg
 compile_commands.json
 workspace/*result/
 test*.mp4
-coco_calibration_sample_200
+# coco_calibration_sample_200
