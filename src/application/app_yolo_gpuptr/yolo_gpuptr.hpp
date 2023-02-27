@@ -1,13 +1,13 @@
 #ifndef YOLO_GPUPTR_HPP
 #define YOLO_GPUPTR_HPP
 
-#include <vector>
-#include <memory>
-#include <string>
-#include <future>
-#include <opencv2/opencv.hpp>
-#include <common/trt_tensor.hpp>
 #include <common/object_detector.hpp>
+#include <common/trt_tensor.hpp>
+#include <future>
+#include <memory>
+#include <opencv2/opencv.hpp>
+#include <string>
+#include <vector>
 
 /**
  * @brief 发挥极致的性能体验
@@ -39,6 +39,7 @@ enum class ImageType : int {
     CVMat      = 0,
     GPUYUVNV12 = 1,  // nv12
     GPUBGR     = 2,  // BGR
+    GPURGB     = 3,  // RGB
 };
 
 struct Image {
@@ -75,6 +76,8 @@ struct Image {
             case ImageType::GPUYUVNV12:
                 return width * height * 1.5;
             case ImageType::GPUBGR:
+                return width * height * 3;
+            case ImageType::GPURGB:
                 return width * height * 3;
             default:
                 return 0;

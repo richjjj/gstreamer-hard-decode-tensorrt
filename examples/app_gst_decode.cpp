@@ -85,10 +85,11 @@ static int test_gstdecode(std::shared_ptr<YoloGPUPtr::Infer> infer = nullptr) {
     }
 
     // process loop
-    uchar3* image = nullptr;
+    // uchar3* image = nullptr;
+    void* image = nullptr;
     while (!signal_recieved) {
         auto t0 = iLogger::timestamp_now_float();
-        if (!input_stream->Capture(&image, 1000)) {
+        if (!input_stream->Capture(&image, imageFormat::IMAGE_UNKNOWN, 1000)) {
             // check for EOS
             if (!input_stream->IsStreaming())
                 break;
@@ -101,7 +102,8 @@ static int test_gstdecode(std::shared_ptr<YoloGPUPtr::Infer> infer = nullptr) {
         // infer
         if (infer != nullptr) {
             auto t1 = iLogger::timestamp_now_float();
-            YoloGPUPtr::Image infer_image((uint8_t*)image, width, height, 0, nullptr, YoloGPUPtr::ImageType::GPUBGR);
+            YoloGPUPtr::Image infer_image((uint8_t*)image, width, height, 0, nullptr,
+                                          YoloGPUPtr::ImageType::GPUYUVNV12);
             auto result = infer->commit(infer_image).get();
             auto t2     = iLogger::timestamp_now_float();
             INFO("[%d] Capture cost: %.2fms; infer cost: %.2fms.", thread_id, float(t1 - t0), float(t2 - t1));
@@ -120,7 +122,7 @@ int app_gstdecode() {
     for (int i = 0; i < 100; ++i)
         yolo->commit(cv::Mat(640, 640, CV_8UC3)).get();
 
-    int num_views = 6;
+    int num_views = 1;
 #pragma omp parallel for num_threads(num_views)
     for (int i = 0; i < num_views; ++i) {
         test_gstdecode(yolo);
