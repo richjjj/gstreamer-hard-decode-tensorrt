@@ -1,12 +1,13 @@
 #ifndef CLPR
 #define CLPR
 
-#include "opencv2/opencv.hpp"
 #include <future>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
+
 #include "common/trt_tensor.hpp"
+#include "opencv2/opencv.hpp"
 
 namespace Clpr {
 using namespace std;

@@ -6,7 +6,9 @@
                 "${workspaceFolder}/**",
                 "/usr/include/opencv4",
                 "${workspaceFolder}/third_party/jetson-utils/include",
-                "/usr/local/cuda/include"
+                "/usr/local/cuda/include",
+                "${workspaceFolder}/src/application",
+                "${workspaceFolder}/src/tensorRT"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
