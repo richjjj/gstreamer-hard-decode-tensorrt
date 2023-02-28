@@ -1,12 +1,3 @@
-/*************************************************************************************
- * Description: multi hard decode with tensorrt
- * Version: 1.0
- * Company: xmrbi
- * Author: zhongchong
- * Date: 2023-01-13 13:06:23
- * LastEditors: zhongchong
- * LastEditTime: 2023-02-02 14:02:58
- *************************************************************************************/
 
 #include <stdio.h>
 #include <string.h>
