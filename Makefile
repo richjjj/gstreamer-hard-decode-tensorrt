@@ -116,8 +116,8 @@ hard_decode : $(example)
 multi : $(example)
 	@cd $(workdir) && ./$(example) multi
 
-pipeline : $(example)
-	@cd $(workdir) && ./$(example) pipeline
+warehouse : $(example)
+	@cd $(workdir) && ./$(example) warehouse
 
 gstdecode : $(example)
 	@cd $(workdir) && ./$(example) gstdecode
