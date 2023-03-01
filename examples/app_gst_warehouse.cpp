@@ -23,8 +23,8 @@ void test_warehouse() {
     std::string gcn_name  = "";
     // std::vector<std::string> uris{"exp/39.mp4", "exp/37.mp4", "exp/38.mp4",
     //                               "exp/37.mp4", "exp/38.mp4", "rtsp://192.168.170.109:554/live/streamperson"};
-    std::vector<std::string> uris{"rtsp://admin:admin123@192.168.170.109:580/cam/realmonitor?channel=4&subtype=0",
-                                  "rtsp://admin:admin123@192.168.170.109:580/cam/realmonitor?channel=6&subtype=0"};
+    std::vector<std::string> uris{"rtsp://admin:xmrbi123@192.168.175.232:554/Streaming/Channels/101",
+                                  "rtsp://admin:xmrbi123@192.168.175.232:554/Streaming/Channels/101"};
 
     auto pipeline = Warehouse::create_solution(det_name, pose_name, gcn_name);
 

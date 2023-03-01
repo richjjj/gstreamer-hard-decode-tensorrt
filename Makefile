@@ -31,7 +31,7 @@ cu_objs := $(cu_objs:$(srcdir)/%=$(objdir)/%)
 cu_mk   := $(cu_objs:.cu.o=.cu.mk)
 
 # 定义opencv和cuda需要用到的库文件
-link_opencv    := opencv_core opencv_imgproc opencv_imgcodecs opencv_videoio
+link_opencv    := opencv_core opencv_imgproc opencv_imgcodecs opencv_videoio jetson-utils
 link_cuda      := cuda cudart cudnn
 # link_ffmpeg    := avcodec avformat swresample swscale avutil
 link_tensorRT  := nvinfer nvparsers nvinfer_plugin protobuf
@@ -97,7 +97,7 @@ $(example): $(workdir)/$(example)
 $(example): $(name)
 
 all       : $(name)
-	@echo $(library_path_export) && echo $(link_librarys)
+	@echo $(library_path_export) && echo $(link_librarys) && echo $(link_flags)
 run       : $(example)
 	@cd $(workdir) && ./$(example) yolo
 
@@ -130,7 +130,7 @@ $(workdir)/$(name) : $(cpp_objs) $(cu_objs)
 $(workdir)/$(example) : $(cpp_objs_example)
 	@echo Link $@
 	@mkdir -p $(dir $@)
-	@$(cc) $^ -o $@ $(link_flags) -L$(workdir) -l$(short_name) -ljetson-utils
+	@$(cc) $^ -o $@ $(link_flags) -L$(workdir) -l$(short_name)
 
 $(objdir)/%.cpp.o : $(srcdir)/%.cpp
 	@echo Compile CXX $<

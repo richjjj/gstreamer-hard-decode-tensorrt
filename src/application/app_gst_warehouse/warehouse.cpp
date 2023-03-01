@@ -156,7 +156,7 @@ public:
     }
     virtual void worker(const string &uri, promise<bool> &state) {
         videoOptions option;
-        option.zeroCopy           = false;
+        option.zeroCopy           = true;
         option.codec              = videoOptions::Codec::CODEC_H264;
         option.resource           = uri;
         videoSource *input_stream = videoSource::Create(option);
@@ -228,7 +228,7 @@ public:
                 //                 16);
                 //     cv::imwrite(cv::format("imgs/%03d.jpg", frame_index), cvimage);
                 // }
-                callback_(2, (void *)&infer_image, (char *)tmp_json.dump().c_str(), tmp_json.dump().size());
+                callback_(2, (void *)&infer_image.device_data, (char *)tmp_json.dump().c_str(), tmp_json.dump().size());
             }
         };
         INFO("done %s", uri.c_str());
@@ -277,7 +277,7 @@ private:
     map<string, atomic_bool> runnings_;
     ai_callback callback_;
 };  // namespace Pipeline
-shared_ptr<Solution> create_pipeline(const string &det_name, const string &pose_name, const string &gcn_name, int gpuid,
+shared_ptr<Solution> create_solution(const string &det_name, const string &pose_name, const string &gcn_name, int gpuid,
                                      bool use_device_frame) {
     shared_ptr<SolutionImpl> instance(new SolutionImpl());
     if (!instance->startup(det_name, pose_name, gcn_name, gpuid, use_device_frame)) {
