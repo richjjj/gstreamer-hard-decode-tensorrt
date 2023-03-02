@@ -174,9 +174,10 @@ public:
             state.set_value(false);
             return;
         }
-        void *image = nullptr;
+        // void *image = nullptr;
+        uchar3 *image = nullptr;
         while (runnings_[uri]) {
-            if (!input_stream->Capture(&image, imageFormat::IMAGE_UNKNOWN, 1000)) {
+            if (!input_stream->Capture(&image, 1000)) {
                 // check for EOS
                 if (!input_stream->IsStreaming())
                     break;
@@ -187,7 +188,7 @@ public:
             int height = input_stream->GetHeight();
             if (callback_) {
                 YoloGPUPtr::Image infer_image((uint8_t *)image, width, height, 0, nullptr,
-                                              YoloGPUPtr::ImageType::GPUYUVNV12);
+                                              YoloGPUPtr::ImageType::GPURGB);
                 nlohmann::json tmp_json;
                 tmp_json["cameraId"]     = uri;
                 tmp_json["det_results"]  = nlohmann::json::array();
@@ -207,11 +208,6 @@ public:
                             {"pose", pose},
                             {"score", obj_pose.confidence}};
                         tmp_json["pose_results"].emplace_back(event_json);
-                        // debug
-                        // cv::rectangle(cvimage, cv::Point(obj_pose.left, obj_pose.top),
-                        //               cv::Point(obj_pose.right, obj_pose.bottom), cv::Scalar(255, 0, 0), 3);
-                        // INFO("box: %s ?= %.2f,%.2f,%.2f,%.2f", event_json["box"].dump().c_str(), obj_pose.left,
-                        //      obj_pose.top, obj_pose.right, obj_pose.bottom);
                     }
                 }
                 auto objs = objs_future.get();
@@ -221,14 +217,8 @@ public:
                                                  {"score", obj.confidence}};
                     tmp_json["det_results"].emplace_back(event_json);
                 }
-                // debug
-                // if (tmp_json["pose_results"].size() > 0) {
-                //     cv::putText(cvimage, to_string(frame_index), cv::Point(100, 100), 0, 1, cv::Scalar::all(0),
-                //     2,
-                //                 16);
-                //     cv::imwrite(cv::format("imgs/%03d.jpg", frame_index), cvimage);
-                // }
-                callback_(2, (void *)&infer_image.device_data, (char *)tmp_json.dump().c_str(), tmp_json.dump().size());
+
+                callback_(2, (void *)infer_image.device_data, (char *)tmp_json.dump().c_str(), tmp_json.dump().size());
             }
         };
         INFO("done %s", uri.c_str());

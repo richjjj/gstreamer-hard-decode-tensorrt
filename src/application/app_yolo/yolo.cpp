@@ -1,14 +1,15 @@
 #include "yolo.hpp"
+
 #include <atomic>
-#include <mutex>
-#include <queue>
-#include <condition_variable>
-#include <infer/trt_infer.hpp>
+#include <common/cuda_tools.hpp>
 #include <common/ilogger.hpp>
 #include <common/infer_controller.hpp>
-#include <common/preprocess_kernel.cuh>
 #include <common/monopoly_allocator.hpp>
-#include <common/cuda_tools.hpp>
+#include <common/preprocess_kernel.cuh>
+#include <condition_variable>
+#include <infer/trt_infer.hpp>
+#include <mutex>
+#include <queue>
 
 namespace Yolo {
 using namespace cv;
@@ -202,7 +203,7 @@ public:
         TRT::Tensor output_array_device(TRT::DataType::Float);
         int max_batch_size = engine->get_max_batch_size();
         auto input         = engine->tensor("images");
-        auto output        = engine->tensor("outputs");
+        auto output        = engine->tensor("output");
         int num_classes    = output->size(2) - 5;
 
         input_width_      = input->size(3);

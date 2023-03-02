@@ -3,3 +3,7 @@ yolov6n,YoloV5,FP16,6.084898
 yolov6n,YoloV5,FP16,5.950640
 yolov6n,YoloV5,FP16,7.381704
 yolov6s_qa,YoloV5,INT8,7.210581
+yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,3.471315
+yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,3.087211
+yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,7.550474
+yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,7.509374

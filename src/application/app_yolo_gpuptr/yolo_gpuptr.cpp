@@ -201,8 +201,9 @@ public:
         TRT::Tensor output_array_device(TRT::DataType::Float);
         int max_batch_size = engine->get_max_batch_size();
         auto input         = engine->tensor("images");
-        auto output        = engine->tensor("outputs");
-        int num_classes    = output->size(2) - 5;
+        // auto output        = engine->tensor("output");
+        auto output     = engine->output(0);
+        int num_classes = output->size(2) - 5;
 
         input_width_      = input->size(3);
         input_height_     = input->size(2);
@@ -353,7 +354,7 @@ public:
             CUDAKernel::convert_nv12_to_bgr_invoke(pimage_device, pimage_device + image.width * image.height,
                                                    image.width, image.height, image.width, image_device,
                                                    preprocess_stream);
-        } else if (image.type == ImageType::GPUBGR) {
+        } else if (image.type == ImageType::GPUBGR || image.type == ImageType::GPURGB) {
             cudaMemcpyAsync(image_device, pimage_device, size_image, cudaMemcpyDeviceToDevice, preprocess_stream);
         } else {
             memcpy(image_host, image.cvmat.data, size_image);
