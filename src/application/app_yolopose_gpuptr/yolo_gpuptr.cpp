@@ -1,14 +1,15 @@
 #include "yolo_gpuptr.hpp"
+
 #include <atomic>
-#include <mutex>
-#include <queue>
-#include <condition_variable>
-#include <infer/trt_infer.hpp>
+#include <common/cuda_tools.hpp>
 #include <common/ilogger.hpp>
 #include <common/infer_controller.hpp>
-#include <common/preprocess_kernel.cuh>
 #include <common/monopoly_allocator.hpp>
-#include <common/cuda_tools.hpp>
+#include <common/preprocess_kernel.cuh>
+#include <condition_variable>
+#include <infer/trt_infer.hpp>
+#include <mutex>
+#include <queue>
 
 namespace YoloposeGPUPtr {
 using namespace cv;
@@ -348,7 +349,7 @@ public:
             CUDAKernel::convert_nv12_to_bgr_invoke(pimage_device, pimage_device + image.width * image.height,
                                                    image.width, image.height, image.width, image_device,
                                                    preprocess_stream);
-        } else if (image.type == ImageType::GPUBGR) {
+        } else if (image.type == ImageType::GPUBGR || image.type == ImageType::GPURGB) {
             cudaMemcpyAsync(image_device, pimage_device, size_image, cudaMemcpyDeviceToDevice, preprocess_stream);
         } else {
             memcpy(image_host, image.cvmat.data, size_image);

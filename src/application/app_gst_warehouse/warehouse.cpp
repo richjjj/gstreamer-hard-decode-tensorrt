@@ -177,6 +177,7 @@ public:
         // void *image = nullptr;
         uchar3 *image = nullptr;
         while (runnings_[uri]) {
+            auto t0 = iLogger::timestamp_now_float();
             if (!input_stream->Capture(&image, 1000)) {
                 // check for EOS
                 if (!input_stream->IsStreaming())
@@ -186,7 +187,12 @@ public:
             }
             int width  = input_stream->GetWidth();
             int height = input_stream->GetHeight();
+            // auto t1    = iLogger::timestamp_now_float();
+            // INFO("decode cost : %.2fms", float(t1 - t0));
             if (callback_) {
+                INFO("image.address = %d", image);
+                auto t1 = iLogger::timestamp_now_float();
+                INFO("decode cost : %.2fms", float(t1 - t0));
                 YoloGPUPtr::Image infer_image((uint8_t *)image, width, height, 0, nullptr,
                                               YoloGPUPtr::ImageType::GPURGB);
                 nlohmann::json tmp_json;
@@ -217,7 +223,8 @@ public:
                                                  {"score", obj.confidence}};
                     tmp_json["det_results"].emplace_back(event_json);
                 }
-
+                auto t2 = iLogger::timestamp_now_float();
+                INFO("inference cost : %.2fms", float(t2 - t1));
                 callback_(2, (void *)infer_image.device_data, (char *)tmp_json.dump().c_str(), tmp_json.dump().size());
             }
         };
@@ -236,7 +243,7 @@ public:
         gpu_              = gpuid;
         use_device_frame_ = use_device_frame_;
         if (!pose_name.empty()) {
-            yolo_pose_ = get_yolopose(YoloposeGPUPtr::Type::V5, TRT::Mode::FP32, pose_name, gpuid);
+            yolo_pose_ = get_yolopose(YoloposeGPUPtr::Type::V5, TRT::Mode::FP16, pose_name, gpuid);
             if (yolo_pose_ != nullptr) {
                 INFO("yolo_pose will be committed");
                 for (int i = 0; i < 10; ++i)
