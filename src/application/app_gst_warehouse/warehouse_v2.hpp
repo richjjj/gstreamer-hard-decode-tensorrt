@@ -24,7 +24,7 @@ typedef std::vector<Box> BoxArray;
 struct Image {
     const void* bgrptr = nullptr;
     int width = 0, height = 0;
-    int camra_id  = 0;
+    int camera_id = 0;
     int device_id = -1;  // -1: cpuptr;
 
     Image() = default;
