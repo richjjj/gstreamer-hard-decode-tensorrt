@@ -24,6 +24,7 @@ typedef std::vector<Box> BoxArray;
 struct Image {
     const void* bgrptr = nullptr;
     int width = 0, height = 0;
+    int camra_id  = 0;
     int device_id = -1;  // -1: cpuptr;
 
     Image() = default;
@@ -33,7 +34,8 @@ struct Image {
 
 class Solution {
 public:
-    virtual std::string commit(const Image& image) = 0;
+    virtual std::string commit(const Image& image)                             = 0;
+    virtual std::vector<std::string> commits(const std::vector<Image>& images) = 0;
 };
 std::shared_ptr<Solution> create_solution(const std::string& det_name);
 

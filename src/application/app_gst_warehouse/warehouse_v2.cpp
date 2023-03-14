@@ -52,6 +52,13 @@ public:
         }
         return "";
     }
+    virtual vector<string> commits(const std::vector<Image>& images) override {
+        vector<string> rs;
+        for (auto& image : images) {
+            rs.emplace_back(commit(image));
+        }
+        return rs;
+    }
 
 private:
     bool use_device_frame_ = true;
