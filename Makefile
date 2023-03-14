@@ -118,6 +118,8 @@ multi : $(example)
 
 warehouse : $(example)
 	@cd $(workdir) && ./$(example) warehouse
+warehouse_v2 : $(example)
+	@cd $(workdir) && ./$(example) warehouse_v2
 
 gstdecode : $(example)
 	@cd $(workdir) && ./$(example) gstdecode
