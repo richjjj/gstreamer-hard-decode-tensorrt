@@ -7,7 +7,7 @@ namespace WarehouseV2 {
 struct Box {
     float left, top, right, bottom, confidence;
     int class_label;
-    int id;  // track id
+    long int id;  // track id
 
     Box() = default;
     Box(float left, float top, float right, float bottom, float confidence, int class_label, int id)

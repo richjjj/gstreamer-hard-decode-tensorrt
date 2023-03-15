@@ -1,9 +1,11 @@
 #include "warehouse_v2.hpp"
 
+#include <sstream>
+
 #include "app_yolo_gpuptr/yolo_gpuptr.hpp"
 #include "app_yolopose_gpuptr/yolo_gpuptr.hpp"
+#include "common/ilogger.hpp"
 #include "track/bytetrack/BYTETracker.h"
-
 namespace WarehouseV2 {
 using namespace std;
 vector<Object> det2tracks(const YoloGPUPtr::BoxArray& array) {
@@ -20,6 +22,21 @@ vector<Object> det2tracks(const YoloGPUPtr::BoxArray& array) {
         outputs.emplace_back(obox);
     }
     return outputs;
+}
+string Box2string(const Box& b) {
+    stringstream ss;
+    ss << "box=[" << b.left << " " << b.top << " " << b.right << " " << b.bottom << "],"
+       << "confidence=" << b.confidence << ",class_lable=" << b.class_label << ",id=" << b.id;
+    return ss.str();
+}
+string BoxArray2string(const BoxArray& ba) {
+    stringstream ss;
+    ss << "[";
+    for (auto& b : ba) {
+        ss << Box2string(b) << ";";
+    }
+    ss << "]";
+    return ss.str();
 }
 class SolutionImpl : public Solution {
 public:
@@ -38,19 +55,42 @@ public:
         return true;
     }
     virtual std::string commit(const Image& image) override {
-        YoloGPUPtr::Image infer_image((uint8_t*)image.bgrptr, image.width, image.height, image.device_id, nullptr,
-                                      YoloGPUPtr::ImageType::GPURGB);
+        if (image.device_id < 0) {
+            cv::Mat tmp(image.height, image.width, CV_8UC3, (uint8_t*)image.bgrptr);
+            YoloGPUPtr::Image infer_image(tmp);
+            auto t1     = iLogger::timestamp_now_float();
+            auto objs   = yolo_->commit(infer_image).get();
+            auto t2     = iLogger::timestamp_now_float();
+            auto tracks = tracker_->update(det2tracks(objs));
+            auto t3     = iLogger::timestamp_now_float();
+            INFO("infer cost: %.2fms; tracker cost: %.2fms.", float(t2 - t1), float(t3 - t2));
+            BoxArray output;
+            for (size_t t = 0; t < tracks.size(); t++) {
+                auto& track = tracks[t];
+                auto obj    = objs[track.detection_index];
+                output.emplace_back(obj.left, obj.top, obj.right, obj.bottom, obj.confidence, obj.class_label,
+                                    track.track_id);
+            }
+            return BoxArray2string(output);
+        } else {
+            auto t1 = iLogger::timestamp_now_float();
+            YoloGPUPtr::Image infer_image((uint8_t*)image.bgrptr, image.width, image.height, image.device_id, nullptr,
+                                          YoloGPUPtr::ImageType::GPURGB);
 
-        auto objs   = yolo_->commit(infer_image).get();
-        auto tracks = tracker_->update(det2tracks(objs));
-        BoxArray output;
-        for (size_t t = 0; t < tracks.size(); t++) {
-            auto& track = tracks[t];
-            auto obj    = objs[track.detection_index];
-            output.emplace_back(obj.left, obj.top, obj.right, obj.bottom, obj.confidence, obj.class_label,
-                                track.track_id);
+            auto objs   = yolo_->commit(infer_image).get();
+            auto t2     = iLogger::timestamp_now_float();
+            auto tracks = tracker_->update(det2tracks(objs));
+            auto t3     = iLogger::timestamp_now_float();
+            INFO("infer cost: %.2fms; tracker cost: %.2fms.", float(t2 - t1), float(t3 - t2));
+            BoxArray output;
+            for (size_t t = 0; t < tracks.size(); t++) {
+                auto& track = tracks[t];
+                auto obj    = objs[track.detection_index];
+                output.emplace_back(obj.left, obj.top, obj.right, obj.bottom, obj.confidence, obj.class_label,
+                                    track.track_id);
+            }
+            return BoxArray2string(output);
         }
-        return "";
     }
     virtual vector<string> commits(const std::vector<Image>& images) override {
         vector<string> rs;
