@@ -5,6 +5,7 @@
 #include "app_yolo_gpuptr/yolo_gpuptr.hpp"
 #include "app_yolopose_gpuptr/yolo_gpuptr.hpp"
 #include "common/ilogger.hpp"
+#include "common/json.hpp"
 #include "track/bytetrack/BYTETracker.h"
 namespace WarehouseV2 {
 using namespace std;
@@ -55,6 +56,11 @@ public:
         return true;
     }
     virtual std::string commit(const Image& image) override {
+        nlohmann::json tmp_json;
+        tmp_json["cameraId"]     = image.camera_id;
+        tmp_json["det_results"]  = nlohmann::json::array();
+        tmp_json["pose_results"] = nlohmann::json::array();
+        tmp_json["gcn_results"]  = nlohmann::json::array();
         if (image.device_id < 0) {
             cv::Mat tmp(image.height, image.width, CV_8UC3, (uint8_t*)image.bgrptr);
             YoloGPUPtr::Image infer_image(tmp);
@@ -68,10 +74,17 @@ public:
             for (size_t t = 0; t < tracks.size(); t++) {
                 auto& track = tracks[t];
                 auto obj    = objs[track.detection_index];
+                if (obj.class_label != 0)
+                    continue;
                 output.emplace_back(obj.left, obj.top, obj.right, obj.bottom, obj.confidence, obj.class_label,
                                     track.track_id);
+                nlohmann::json event_json = {{"box", {obj.left, obj.top, obj.right, obj.bottom}},
+                                             {"class_label", 0},  // damo 赋值为2
+                                             {"score", obj.confidence}};
+                tmp_json["det_results"].emplace_back(event_json);
             }
-            return BoxArray2string(output);
+            // return BoxArray2string(output);
+            return tmp_json.dump();
         } else {
             auto t1 = iLogger::timestamp_now_float();
             YoloGPUPtr::Image infer_image((uint8_t*)image.bgrptr, image.width, image.height, image.device_id, nullptr,
@@ -86,10 +99,17 @@ public:
             for (size_t t = 0; t < tracks.size(); t++) {
                 auto& track = tracks[t];
                 auto obj    = objs[track.detection_index];
+                if (obj.class_label != 0)
+                    continue;
                 output.emplace_back(obj.left, obj.top, obj.right, obj.bottom, obj.confidence, obj.class_label,
                                     track.track_id);
+                nlohmann::json event_json = {{"box", {obj.left, obj.top, obj.right, obj.bottom}},
+                                             {"class_label", 0},  // damo 赋值为2
+                                             {"score", obj.confidence}};
+                tmp_json["det_results"].emplace_back(event_json);
             }
-            return BoxArray2string(output);
+            // return BoxArray2string(output);
+            return tmp_json.dump();
         }
     }
     virtual vector<string> commits(const std::vector<Image>& images) override {

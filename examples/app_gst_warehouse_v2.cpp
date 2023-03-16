@@ -45,7 +45,7 @@ static int test_gstdecode(std::shared_ptr<WarehouseV2::Solution> infer = nullptr
             WarehouseV2::Image infer_image(image, width, height, 0);
             auto result = infer->commit(infer_image);
             auto t2     = iLogger::timestamp_now_float();
-            // INFO("reuslt=%s", result.c_str());
+            INFO("reuslt=%s", result.c_str());
             INFO("[%d] Capture cost: %.2fms; infer cost: %.2fms.", thread_id, float(t1 - t0), float(t2 - t1));
         }
     }
