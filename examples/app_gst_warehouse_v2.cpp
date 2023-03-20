@@ -57,7 +57,7 @@ int app_warehouse_v2() {
     if (iLogger::exists("hard"))
         iLogger::rmtree("hard");
     iLogger::mkdir("hard");
-    auto solution = WarehouseV2::create_solution("yolov6s_qa.INT8.B16.trtmodel");
+    auto solution = WarehouseV2::create_solution("yolov5s_pose.FP16.trtmodel");
     // auto yolo     = get_yolo(YoloGPUPtr::Type::V5, TRT::Mode::INT8, "yolov6s_qa", 0);
     // warm up
     // for (int i = 0; i < 100; ++i)
