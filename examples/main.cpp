@@ -14,6 +14,7 @@ int app_plate();
 int app_gstdecode();
 int app_warehouse();
 int app_warehouse_v2();
+int app_traffic();
 int main(int argc, char **argv) {
     const char *method = "yolo";
     if (argc > 1) {
@@ -38,6 +39,8 @@ int main(int argc, char **argv) {
         app_warehouse();
     } else if (strcmp(method, "warehouse_v2") == 0) {
         app_warehouse_v2();
+    } else if (strcmp(method, "traffic") == 0) {
+        app_traffic();
     } else {
         app_yolo();
     }

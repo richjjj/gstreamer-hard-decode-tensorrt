@@ -121,6 +121,9 @@ warehouse : $(example)
 warehouse_v2 : $(example)
 	@cd $(workdir) && ./$(example) warehouse_v2
 
+traffic : $(example)
+	@cd $(workdir) && ./$(example) traffic
+
 gstdecode : $(example)
 	@cd $(workdir) && ./$(example) gstdecode
 
