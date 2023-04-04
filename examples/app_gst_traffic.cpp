@@ -53,8 +53,10 @@ int app_traffic() {
         Traffic::Image infer_image(image, width, height, 0, 0);
         auto future = solution->commit(infer_image);
         auto t2     = iLogger::timestamp_now_float();
-        INFO("[] Capture cost: %.2fms; infer cost: %.2fms.", float(t1 - t0), float(t2 - t1));
         auto result = future.get();
+        auto t3     = iLogger::timestamp_now_float();
+        INFO("[] Capture cost: %.2fms; commit cost: %.2fms; get cost: %.2fms.", float(t1 - t0), float(t2 - t1),
+             float(t3 - t2));
         INFO("reuslt=%s", result.c_str());
     }
 

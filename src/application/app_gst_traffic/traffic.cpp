@@ -28,12 +28,16 @@ public:
             event_infer.reset();
             return false;
         }
-        int camera_id = event_infer->get_cameraID();
-        event_infers_.insert(make_pair(camera_id, event_infer));
-        // event_infers_.at(camera_id) = std::move(event_infer);
+        int camera_id            = event_infer->get_cameraID();
+        event_infers_[camera_id] = std::move(event_infer);
+        // event_infers_.insert(make_pair(camera_id, event_infer));
+        INFO("make_view done: {cameraID[%d]:event_infer}", camera_id);
         return true;
     }
     virtual std::shared_future<std::string> commit(const Image& image) override {
+        for (auto ev : event_infers_) {
+            INFO("%d", ev.first);
+        }
         auto event_infer = event_infers_.find(image.camera_id);
         if (event_infer == event_infers_.end()) {
             INFOW("please  make_view cmaraID[%d]", image.camera_id);
