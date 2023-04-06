@@ -7,3 +7,6 @@ yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,3.471315
 yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,3.087211
 yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,7.550474
 yolov5n_sign_640x640_huang_20221124_epoch40,YoloV5,FP16,7.509374
+yolov6n_v2_reopt_qat_35.0_bnone,YoloV5,INT8,4.842493
+yolov6n_v2_reopt_qat_35.0_bnone,YoloV5,INT8,4.959387
+yolov6n_v2_reopt_qat_35.0_bnone,YoloV5,INT8,4.001313

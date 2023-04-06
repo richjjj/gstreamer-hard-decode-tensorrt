@@ -136,7 +136,14 @@ public:
                 auto t1              = iLogger::timestamp_now_float();
 
                 // auto objs        = job.future_boxarray_.get();
-                auto &objs  = job.input.get();
+                auto &_objs = job.input.get();
+                // only tracking  person and car
+                YoloGPUPtr::BoxArray objs;
+                for (auto &obj : _objs) {
+                    if (obj.class_label <= 2 || obj.class_label == 5 || obj.class_label == 7) {
+                        objs.emplace_back(obj);
+                    }
+                }
                 auto tracks = tracker_->update(det2tracks(objs));
                 auto t2     = iLogger::timestamp_now_float();
                 for (auto &e : config_.events) {
