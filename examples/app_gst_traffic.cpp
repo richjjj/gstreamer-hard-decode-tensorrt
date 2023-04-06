@@ -23,7 +23,7 @@ int app_traffic() {
             iLogger::sleep(5000);
         }
     }
-
+    iLogger::sleep(50);
     // 获取摄像头数据
     videoOptions option;
     option.zeroCopy           = false;

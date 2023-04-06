@@ -35,9 +35,9 @@ public:
         return true;
     }
     virtual std::shared_future<std::string> commit(const Image& image) override {
-        for (auto ev : event_infers_) {
-            INFO("%d", ev.first);
-        }
+        // for (auto ev : event_infers_) {
+        //     INFO("%d", ev.first);
+        // }
         auto event_infer = event_infers_.find(image.camera_id);
         if (event_infer == event_infers_.end()) {
             INFOW("please  make_view cmaraID[%d]", image.camera_id);
